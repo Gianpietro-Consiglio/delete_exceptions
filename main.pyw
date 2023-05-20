@@ -3,9 +3,7 @@ import os
 import sys
 import PySimpleGUI as sg
 import time
-from threading import Thread
-
-#CÓDIGO DA INTERFACE GRÁFICA
+#CÓDIGO DA TELA PRINCIPAL
 def Tela_Principal():
     sg.theme('Reddit')
     layout=[
@@ -18,7 +16,7 @@ def Tela_Principal():
     ]
     return sg.Window('Apagador de exceptions 2.0',layout=layout,finalize=True,font='Verdana',text_justification='c')
 
-
+#CÓDIGO DA TELA AUTO
 def Tela_AUTO():
     sg.theme('Reddit')
     layout=[
@@ -30,7 +28,7 @@ def Tela_AUTO():
     ]
     return sg.Window('Apagador de exceptions 2.0',layout=layout,finalize=True,font='Verdana',text_justification='c')
 
-
+#FUNÇÃO QUE RETORNA DIRETORIO
 def get_diretorio():
     diretorio = values['diretorio']
     return(diretorio)
@@ -44,11 +42,7 @@ while True:
 
     #APAGA ARQUIVOS E PASTAS!
     if event == 'APAGAR':
-        window['APAGAR'].update(disabled=True)
-        window['LIMPAR'].update(disabled=True)
-        window['AUTO'].update(disabled=True)
-        window['LISTAR'].update(disabled=True)
-        window['BUSCAR'].update(disabled=True)
+        
         #LISTANDO TODOS ARQUIVOS DO DIRETÓRIO
         try:
             res = get_diretorio()
@@ -90,13 +84,6 @@ while True:
                     except Exception as erro:
                         sg.popup(erro)
                         continue
-                          
-        #ATIVANDO BOTÕES NOVAMENTE
-        window['APAGAR'].update(disabled=False)
-        window['LIMPAR'].update(disabled=False)
-        window['AUTO'].update(disabled=False)
-        window['LISTAR'].update(disabled=False)
-        window['BUSCAR'].update(disabled=False)
 
     #LIMPAR CAMPOS
     elif event == 'LIMPAR':
@@ -105,12 +92,12 @@ while True:
         window['arquivo_qtd2'].update('')
         window['diretorio'].update('')
         window['ext'].update('')
-
+    #ABRE OUTRA TELA
     elif event == 'AUTO':
         janela.close()
         janela1 = Tela_AUTO()
       
-    
+    #LISTA TODOS OS ARQUIVOS PRESENTES NA PASTA E MOSTRA ARQUIVOS QUE PODEM IR PRO LIXO
     elif event == 'LISTAR':
         res = get_diretorio()
         try:
@@ -164,7 +151,7 @@ while True:
 
 
     
-
+    #CÓDIGO DO BOTÃO INICIAR
     elif event == 'INICIAR':
         window['info'].update(visible=True)
         hora_escolhida = values['hour']
