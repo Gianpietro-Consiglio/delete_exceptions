@@ -22,9 +22,11 @@ def Tela_Principal():
 def Tela_AUTO():
     sg.theme('Reddit')
     layout=[
-        [sg.Text('H:'),sg.Combo(['00','08','12','16','20','22','02','03'],size=(3,3),readonly=True,default_value='00',key='hour'),sg.Text('M:'),sg.Combo(['00','10','20','30','40','50'],size=(3,3),readonly=True,default_value='00',key='minute')],
-        [sg.Button('INICIAR',key='INICIAR',border_width=3)],
-        [sg.Text('',key='info',background_color='yellow',text_color='red',visible=False)]
+        [sg.FolderBrowse('BUSCAR'),sg.Input('',key='diretorio',border_width=1)],
+        [sg.Text('Extensão: '),sg.Input(key='ext',size=(4,4),border_width=1)],
+        [sg.Text('H:'),sg.Combo(['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'],size=(3,3),readonly=True,default_value='00',key='hour'),sg.Text('M:'),sg.Combo(['00','05','10','15','20','25','30','35','40','45','50','55'],size=(3,3),readonly=True,default_value='00',key='minute')],
+        [sg.Button('INICIAR',key='INICIAR',border_width=3),sg.Button('VOLTAR',key='VOLTAR',border_width=3)],
+        [sg.Text('',key='info',background_color='yellow',text_color='blue',visible=False)]
     ]
     return sg.Window('Apagador de exceptions 2.0',layout=layout,finalize=True,font='Verdana',text_justification='c')
 
@@ -53,7 +55,8 @@ while True:
             arquivos = os.listdir(res)
 
         except Exception as erro:
-            window['arquivo'].update(erro)        
+           sg.popup(erro) 
+           continue       
 
         else:
             window['arquivo_qtd2'].update(len(arquivos))    
@@ -68,7 +71,7 @@ while True:
                         window['arquivo_qtd1'].update(pos)
 
                     except Exception as erro:
-                        window['arquivo'].update(erro)
+                        sg.popup(erro)
                         continue        
                            
             else:
@@ -85,7 +88,7 @@ while True:
                         
                         
                     except Exception as erro:
-                        window['arquivo'].update(erro)
+                        sg.popup(erro)
                         continue
                           
         #ATIVANDO BOTÕES NOVAMENTE
@@ -110,6 +113,11 @@ while True:
     
     elif event == 'LISTAR':
         res = get_diretorio()
+        try:
+            os.chdir(res)
+        except Exception as erro:
+            sg.popup(erro) 
+            continue   
         arquivos = os.listdir(res)
         qtd = len(values['ext'])
         pos = 0
@@ -164,18 +172,59 @@ while True:
         minuto_escolhido = values['minute']
         minuto_escolhido = str(minuto_escolhido)
         while True:
+            janela1.refresh()
             h = time.strftime('%H')
             m = time.strftime('%M')
             s = time.strftime('%S')
             h = str(h)
             m = str(m)
             if hora_escolhida == h and minuto_escolhido == m:
-                print('nao sei')
-            window['info'].update(f'[{h}:{m}:{s}]Esperando horário...')    
-            janela1.refresh()
-            time.sleep(10)
-            
+                window['info'].update('Excluindo arquivos...')
+                diretorio = values['diretorio']
+                if len(values['ext']) == 0:
+                    try:
+                        os.chdir(f'{diretorio}')
+                    except Exception as erro:
+                        sg.popup(erro)
 
+                    else:
+                        arquivos = os.listdir(f'{diretorio}')    
+                        for x in arquivos:
+                            janela1.refresh()
+                            try:
+                                os.remove(f'{diretorio}//{x}')    
+                                window['info'].update(f'Excluído com sucesso: {x}',background_color='green',text_color='white')
+                            except Exception as erro:
+                                window['info'].update(f'Falha ao excluir: {x}', background_color='red',text_color='white')
+                                continue    
+                else:
+                    try:
+                        os.chdir(f'{diretorio}')
+                    except Exception as erro:
+                        sg.popup(erro)
+
+                    else:
+                        arquivos = os.listdir(f'{diretorio}')    
+                        for x in arquivos:
+                            janela1.refresh()
+                            z, extensao = os.path.splitext(x)
+                            if values['ext'] == extensao:
+                                try:
+                                    os.remove(f'{diretorio}//{x}')  
+                                    window['info'].update(f'Excluído com sucesso: {x}',background_color='green',text_color='white')
+
+                                except Exception as erro:
+                                    window['info'].update(f'Falha ao excluir: {x}',background_color='red',text_color='white')
+                                    continue    
+
+
+            window['info'].update(f'[{h}:{m}:{s}]Esperando horário...')
+            janela1.refresh()
+            time.sleep(1)
+            
+    elif event == 'VOLTAR':
+        janela1.close()
+        janela = Tela_Principal()
 
     #FINALIZA O PROGRAMA        
     elif event == sg.WIN_CLOSED:
